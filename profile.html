@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="profile">
+        <h1>Your Profile</h1>
+        <form>
+            <label>First Name:</label>
+            <input type="text" id="first_name" name="first_name" disabled>
+            <label>Last Name:</label>
+            <input type="text" id="last_name" name="last_name" disabled>
+            <label>Gender:</label>
+            <select id="gender" name="gender" disabled>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Other</option>
+            </select>
+            
+            <label>Date of birth:</label>
+            <input type="date" id="dob" name="dob" disabled>
+            <label>Email:</label>
+            <input type="text" id="email" name="email" disabled>
+            <label>Password:</label>
+            <input type="password" id="password" name="password" disabled>
+            <button type="submit" id="edit_btn" onclick="edit()">Edit</button>
+            <button type="submit" id="update_btn" onclick="update()">Update</button>
+            <button type="submit" id="logout_btn" onclick="logout()">Logout</button>
+            <button type="submit" id="delete_btn" onclick="deleteacc()">Delete Account</button>
+        </form>
+    </div>
+    <script>
+        const email = localStorage.getItem("email");
+    
+        if (!email) {
+          window.location.href = "/login";
+        }
+    
+        fetch("/get-user-info", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email:email,      
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            if (data.user) {
+              document.getElementById("first_name").value = data.user.first_name;
+              document.getElementById("last_name").value = data.user.last_name;
+              document.getElementById("gender").value = data.user.gender;
+              document.getElementById("dob").value = data.user.dob;
+              document.getElementById("email").value = data.user.email;
+              document.getElementById("password").value = data.user.password;
+
+              
+            } else {
+              alert(data.error);
+              localStorage.removeItem("email");
+              window.location.href = "/login";
+            }
+          });
+         
+
+    function edit() {
+      event.preventDefault();
+      document.getElementById("first_name").disabled = false;
+      document.getElementById("last_name").disabled = false;
+      document.getElementById("gender").disabled = false;
+      document.getElementById("dob").disabled = false;
+      document.getElementById("email").disabled = false;
+      document.getElementById("password").disabled = false;
+    }
+
+    function update(){
+      event.preventDefault();
+
+    const user = {
+    first_name: document.getElementById("first_name").value,
+    last_name: document.getElementById("last_name").value,
+    gender: document.getElementById("gender").value,
+    dob: document.getElementById("dob").value,
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value,
+  };
+
+    fetch("/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      if (data.success) {
+        alert("Update successful");
+        location.href = "/profile";
+      } else {
+        alert("Profile update failed");
+      }
+    })
+  };
+
+    function logout() {
+      event.preventDefault();
+      localStorage.removeItem("email");
+      window.location.href = "/login";
+    }
+
+     function deleteacc() {
+      event.preventDefault();
+      fetch("/delete", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            if (data.result) {
+              alert('Account has been deleted');
+              window.location.href = "/login";
+            } else {
+              alert(data.error);
+            }
+          });
+     
+    }
+  </script> 
+
+</body>
+</html>

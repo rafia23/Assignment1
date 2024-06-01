@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sign Up</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="signup">
+        <h2>Resgistration Form</h2>
+       
+        <form>
+          
+            <label>First Name:</label>
+            <input type="text" id="first_name" name="first_name" placeholder="Enter first name">
+            <label>Last Name:</label>
+            <input type="text" id="last_name" name="last_name" placeholder="Enter last name">
+            <label>Gender:</label>
+            <select id="gender" name="gender">
+                <option>Select gender</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Other</option>
+            </select>
+            
+            <label>Date of birth:</label>
+            <input type="date" id="dob" name="dob">
+            <label>Email:</label>
+            <input type="text" id="email" name="email" placeholder="Enter email">
+            <label>Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter password">
+            <label>Retype password:</label>
+            <input type="password" id="retype_password" name="retype_password" placeholder="Re-enter password">
+            <button type="submit" id="signup_btn" onclick="register()">Register</button>
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </form>
+    </div>
+
+    <script>
+        function register()
+        {
+          event.preventDefault();
+            const first_name = document.getElementById("first_name").value;
+            const last_name = document.getElementById("last_name").value;
+            const gender = document.getElementById("gender").value;
+            const dob = document.getElementById("dob").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const retype_password = document.getElementById("retype_password").value;
+  
+
+        if (password !== retype_password) {
+          alert("Passwords do not match");
+          return;
+        }
+
+        fetch("/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            first_name: first_name,
+            last_name: last_name,
+            gender: gender,
+            dob:dob,
+            email:email,
+            password: password,
+            retype_password: retype_password,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            if (data.result) {
+              alert("User registered successfully");
+            } else {
+              alert(data.error);
+            }
+          });
+      }
+    </script>
+</body>
+</html>
